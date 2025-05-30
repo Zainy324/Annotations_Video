@@ -1,0 +1,190 @@
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.video-container video {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.video-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.controls-overlay {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 30;
+  pointer-events: auto;
+}
+
+/* Enhanced progress bar */
+.progress-wrapper {
+  margin-bottom: 1rem;
+}
+
+.time-display {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.25rem;
+}
+
+.progress-track {
+  position: relative;
+  height: 0.5rem;
+  background-color: #4b5563;
+  border-radius: 9999px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.progress-fill {
+  position: absolute;
+  height: 100%;
+  background-color: #ef4444;
+  border-radius: 9999px;
+  top: 0;
+  left: 0;
+}
+
+.annotation-dot {
+  position: absolute;
+  top: 0;
+  height: 0.75rem;
+  width: 0.75rem;
+  background-color: #f59e0b;
+  border-radius: 9999px;
+  transform: translateX(-50%);
+  margin-top: -0.125rem;
+}
+
+.current-time-line {
+  position: absolute;
+  top: 0;
+  height: 0.75rem;
+  width: 2px;
+  background-color: white;
+  transform: translateX(-50%);
+  margin-top: -0.125rem;
+}
+
+/* Update these styles in your App.css */
+.progress-container {
+  position: relative;
+  height: 4px;
+  background-color: transparent; /* Changed from rgba(255,255,255,0.2) */
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.progress-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(4, 30, 33, 0.562); /* Solid gray background */
+  border-radius: 2px;
+  z-index: 1; /* Ensure it's above the container */
+}
+
+.progress-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.4);
+  z-index: 1;
+}
+
+.progress-thumb {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  background: #ff0000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* Update these styles */
+.progress-annotations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #ffcc00;
+  border-radius: 2px;
+  z-index: 3; /* Higher than progress-played */
+}
+
+.progress-played {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #ff0000;
+  border-radius: 2px;
+  z-index: 2; /* Lower than annotations */
+}
+
+.progress-container:hover .progress-thumb {
+  opacity: 1;
+}
+
+.annotation-edit-menu {
+  position: absolute;
+  z-index: 20;
+  background: rgba(30, 30, 30, 0.95);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.annotation-edit-btn {
+  font-size: 0.95rem;
+  padding: 2px 8px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.annotation-edit-btn.delete {
+  color: #f87171;
+  background: transparent;
+}
+
+.annotation-edit-btn.delete:hover {
+  background: #7f1d1d;
+  color: #fff;
+}
+
+.annotation-edit-btn.move {
+  color: #60a5fa;
+  background: transparent;
+}
+
+.annotation-edit-btn.move:hover {
+  background: #1e3a8a;
+  color: #fff;
+}
+
