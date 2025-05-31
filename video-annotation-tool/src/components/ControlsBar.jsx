@@ -23,7 +23,8 @@ const ControlsBar = ({
   handleRedo,
   history,
   redoStack,
-  setShowAnnotationsPanel
+  setShowAnnotationsPanel,
+  showAnnotationsPanel
 }) => {
   const [showMenu, setShowMenu] = useState(false);
 
@@ -158,17 +159,72 @@ const ControlsBar = ({
                   </select>
                 </label>
               </div>
-              <div
-                className="px-4 py-2 hover:bg-white/10 cursor-pointer flex items-center gap-2"
+
+              {/* <div
+                className={`px-4 py-2 cursor-pointer flex items-center gap-3 rounded transition
+                  ${showAnnotationsPanel ? 'bg-blue-600 text-white' : 'hover:bg-white/10 text-gray-200'}
+                `}
                 onMouseDown={e => {
                   e.preventDefault();
-                  setShowAnnotationsPanel(true);
+                  setShowAnnotationsPanel(v => !v);
                   setShowMenu(false);
                 }}
-              >
-                <svg width="18" height="18" fill="none" stroke="currentColor"><path d="M2 16.5V13a2 2 0 0 1 2-2h3.5"/><path d="M17 7l-5-5-9 9v5h5l9-9z"/></svg>
-                <span>Annotations</span>
-              </div>
+              > */}
+                {/* Toggle Switch */}
+                {/* <span className={`toggle-switch ${showAnnotationsPanel ? 'on' : ''}`}>
+                  <span className="toggle-knob" />
+                </span>
+                <span>
+                  {showAnnotationsPanel ? "Hide Annotations" : "Annotations"}
+                </span>
+              </div> */}
+<div className="flex items-center gap-3 px-2 py-2">
+  <button
+  className={`annotation-toggle-btn ${showAnnotationsPanel ? 'on' : ''}`}
+  aria-pressed={showAnnotationsPanel}
+  onClick={() => {
+    setShowAnnotationsPanel(v => !v);
+    setShowMenu(false);
+  }}
+  style={{
+    width: 40,
+    height: 22,
+    borderRadius: 12,
+    background: showAnnotationsPanel ? '#2563eb' : '#39315a',
+    border: 'none',
+    position: 'relative',
+    transition: 'background 0.2s',
+    outline: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    padding: 0,
+  }}
+  title="Toggle Annotations Panel"
+>
+  <span
+    style={{
+      display: 'block',
+      width: 18,
+      height: 18,
+      borderRadius: '50%',
+      background: showAnnotationsPanel ? '#facc15' : '#fff', // <-- FIXED!
+      boxShadow: '0 1px 4px #0002',
+      position: 'absolute',
+      left: showAnnotationsPanel ? 20 : 2,
+      top: 2,
+      transition: 'left 0.2s, background 0.2s',
+    }}
+  />
+</button>
+<span className="font-semibold">
+  {showAnnotationsPanel ? "Hide Annotations" : "Annotations"}
+</span>
+  <span className="font-semibold">
+    {showAnnotationsPanel ? "Hide Annotations" : "Annotations"}
+  </span>
+</div>
+              
             </div>
           )}
         </div>

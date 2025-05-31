@@ -317,3 +317,270 @@
     min-height: 400px;
   }
 }
+
+.app-header {
+  width: 100%;
+  background: linear-gradient(90deg, #1e293b 0%, #2563eb 100%);
+  color: #facc15;
+  padding: 2rem 2.5rem 1.5rem 2.5rem;
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  box-shadow: 0 2px 12px #0002;
+  text-shadow: 0 2px 8px #0006;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 900;
+}
+
+.app-footer {
+  width: 100%;
+  background: linear-gradient(90deg, #1e293b 0%, #2563eb 100%);
+  color: #e5e7eb;
+  padding: 1.2rem 2.5rem;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  box-shadow: 0 -2px 12px #0002;
+}
+
+@media (max-width: 600px) {
+  .app-header, .app-footer {
+    padding: 1rem 0.5rem;
+    font-size: 1.2rem;
+  }
+  .app-header h1 {
+    font-size: 1.3rem;
+  }
+}
+
+
+
+/* Custom Switch Styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  /* New size */
+  height: 36px;
+  width: 72px;
+}
+.switch input {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  z-index: 100;
+  cursor: pointer;
+}
+.switch label {
+  height: 25px;
+  width: 56px;
+  background-color: #39315a;
+  border-radius: 36px;
+  display: block;
+  position: relative;
+  transition: background 0.3s;
+  padding: 0;
+  /* Make sure overflow is visible so the bulb can move */
+  overflow: visible;
+}
+.switch .bulb {
+  height: 20px;
+  width: 20px;
+  background-color: #4a426b;
+  border-radius: 50%;
+  position: absolute;
+  top: 2.5px;
+  left: 4px;
+  display: block;
+  transition: 0.3s;
+  box-shadow:
+    inset 0 0 1px 1px #4a426b,
+    inset 0 0 2px 3px #423963,
+    0 6px 10px -3px rgba(0,0,0,0.4);
+}
+.switch .bulb-center {
+  position: absolute;
+  display: block;
+  height: 8px;
+  width: 8px;
+  background-color: #5a527b;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transition: 0.3s;
+  transform: translate(-50%, -50%);
+  box-shadow: 
+    inset 0 0 0 2px #635a84;
+}
+.switch .bulb-center:after {
+  content: "";
+  display: block;
+  height: 4px;
+  width: 4px;
+  background-color: #7b7394;
+  border-radius: 50%;
+  position: absolute;
+  transition: 0.3s;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 1px 2px #524a73;
+}
+.switch .filament-1, .switch .filament-2 {
+  position: absolute;
+  display: block;
+  height: 11px;
+  width: 11px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;   
+  overflow: hidden;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+.switch .filament-1:after, .switch .filament-1:before,
+.switch .filament-2:after, .switch .filament-2:before {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 5px;
+  border-radius: 50%;
+  border: 1px solid #4a426b;
+  position: absolute;
+  transition: 0.3s;
+  top: -1px;
+  left: -1px;
+  transform: rotate(-10deg);
+}
+.switch .filament-1:before {
+  left: 5px;
+  transform: rotate(10deg);
+}
+.switch .filament-2 {
+  transform: translate(-50%, -50%) rotate(45deg) !important;
+}
+.switch .reflections {
+  height: 100%;
+  width: 100%;
+  display: block;
+  border-radius: 50%;
+  overflow: hidden;
+  position: absolute;
+  z-index: 90;
+  perspective: 20px;
+}
+.switch .reflections span {
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background-image: linear-gradient(-135deg, transparent 10%, rgba(255,255,255,.3));
+  position: absolute;
+  left: -12px;
+  bottom: -13px;
+}
+.switch .reflections span:after {
+  content: "";
+  display: block;
+  height: 10px;
+  width: 6px;
+  position: absolute;
+  top: -11px;
+  right: -12px;
+  border-radius: 50%;
+  box-shadow: 2px -1px 0 -1px rgba(255,255,255,.4);
+  filter: blur(0.5px);
+  transform: rotate(-10deg);     
+}
+.switch .reflections:after {
+  content: "";
+  display: block;
+  height: 24px;
+  width: 15px;
+  background-image: linear-gradient(80deg, rgba(255,255,255,.05) 45%, rgba(255,255,255,.5));
+  border-radius: 10% 20% 50% 30% / 30% 60% 30% 40%;
+  position: absolute;
+  transform-style: preserve-3d;
+  transform: rotateX(-25deg)  rotate(-35deg) skewx(-15deg) translate(3px, -6px);
+  top: -2px;
+  left: -2px;
+}
+.switch .reflections:before {
+  content: "";
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 9px;
+  background-image: linear-gradient(to right, transparent, rgba(255,255,255,.15));
+  bottom: 3px;
+  right: 0px;
+  transform: rotate(45deg);
+}
+.switch .sparks .spark1,
+.switch .sparks .spark2,
+.switch .sparks .spark3,
+.switch .sparks .spark4 {
+  display: block;
+  height: 1px;
+  width: 1px;
+  background-color: #d1b82b;
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  transition: .2s;
+}
+.switch .sparks .spark1 { right: -2px; bottom: 7px; }
+.switch .sparks .spark2 { right: 6px; bottom: 25px; }
+.switch .sparks .spark3 { left: 6px; bottom: 25px; }
+.switch .sparks .spark4 { left: 6px; bottom: 6px; }
+
+/* Checked state */
+.switch input:checked + label .bulb {
+  left: 32px; /* Move bulb to the right */
+  background-color: #a7694a;
+  box-shadow:
+    inset 0 0 1px 1px #a56758,
+    inset 0 0 2px 3px #6b454f,
+    0 6px 10px -3px rgba(0,0,0,0.4),
+    0 0 10px 15px rgba(253,184,67,.1);
+}
+.switch input:checked + label .bulb-center {
+  background-color: #feed6b;
+  box-shadow: 
+    inset 0 0 0 2px #fdec6a,
+    0 0 4px 3px #bca83c,
+    0 0 8px 5px #a1664a;
+}
+.switch input:checked + label .bulb-center:after {
+  background-color: #fef401;
+  box-shadow: 0 0 1px 2px #fdb843;
+}
+.switch input:checked + label .filament-1:before,
+.switch input:checked + label .filament-1:after,
+.switch input:checked + label .filament-2:before,
+.switch input:checked  label .filament-2:after {
+  border-color: #fef4d5;
+}
+
+@media (max-width: 600px) {
+  .switch {
+    height: 28px;
+    width: 56px;
+  }
+  .switch label {
+    height: 28px;
+    width: 56px;
+    border-radius: 28px;
+  }
+  .switch .bulb {
+    height: 20px;
+    width: 20px;
+    top: 4px;
+    left: 4px;
+  }
+}

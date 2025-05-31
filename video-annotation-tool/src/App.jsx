@@ -160,6 +160,20 @@ const sizeOptions = [
   return segments;
 };
 
+useEffect(() => {
+    setHistory(prev => {
+      if (JSON.stringify(prev[prev.length - 1]) === JSON.stringify(annotations)) return prev;
+      const newHistory = [...prev, annotations];
+      if (newHistory.length > 50) newHistory.shift();
+      setRedoStack([]); // Only clear redo when a new action is made
+      return newHistory;
+    });
+
+    if (skipRedoClearRef.current) {
+      skipRedoClearRef.current = false;
+      return;
+    }
+  }, [annotations]);
   const handleSpeedChange = (speed) => {
     setPlaybackRate(speed);
     if (videoRef.current) {
@@ -636,16 +650,31 @@ const handleUndo = () => {
     const newHistory = prev.slice(0, -1);
     setRedoStack(r => [annotations, ...r]);
     setAnnotations(newHistory[newHistory.length - 1]);
+     if (newHistory.length > 50) newHistory.shift();
     return newHistory;
   });
 };
 
+// const handleRedo = () => {
+//   skipRedoClearRef.current = true;
+//   setRedoStack(prev => {
+//     if (prev.length === 0) return prev;
+//     const [next, ...rest] = prev;
+//     setHistory(h => [...h, next]);
+//     setAnnotations(next);
+//     return rest;
+//   });
+// };
 const handleRedo = () => {
   skipRedoClearRef.current = true;
   setRedoStack(prev => {
     if (prev.length === 0) return prev;
     const [next, ...rest] = prev;
-    setHistory(h => [...h, next]);
+    setHistory(h => {
+      const newHistory = [...h, next];
+      if (newHistory.length > 50) newHistory.shift();
+      return newHistory;
+    });
     setAnnotations(next);
     return rest;
   });
@@ -664,6 +693,8 @@ useEffect(() => {
     setHistory(prev => {
       if (JSON.stringify(prev[prev.length - 1]) === JSON.stringify(annotations)) return prev;
       const newHistory = [...prev, annotations];
+      if (newHistory.length > 50) newHistory.shift();
+      setRedoStack([]); // Only clear redo when a new action is made
       return newHistory;
     });
 
@@ -671,210 +702,28 @@ useEffect(() => {
       skipRedoClearRef.current = false;
       return;
     }
-    setRedoStack([]);
   }, [annotations]);
 
-  // return (
-  //   <div className="w-full min-h-screen bg-gray-900 text-white p-4">
-  //     <h1 className="text-2xl font-bold mb-6">Video Annotation Tool</h1>
-  //     {!showAnnotationsPanel ? (
-  //       // Centered video and controls only
-  //       <div className="flex flex-col items-center justify-center">
-  //         <div
-  //           ref={containerRef}
-  //           className="relative bg-black rounded-lg overflow-hidden video-container"
-  //           style={{ aspectRatio: '16/9', width: 720, maxWidth: '70vw' }}
-  //         >
-  //           <VideoPlayer
-  //             videoRef={videoRef}
-  //             canvasRef={canvasRef}
-  //             containerRef={containerRef}
-  //             canvasSize={canvasSize}
-  //             handleTimeUpdate={handleTimeUpdate}
-  //             handleLoadedMetadata={handleLoadedMetadata}
-  //             handleCanvasMouseDown={handleCanvasMouseDown}
-  //             handleCanvasMouseMove={handleCanvasMouseMove}
-  //             handleCanvasMouseUp={handleCanvasMouseUp}
-  //             isPlaying={isPlaying}
-  //             setIsPlaying={setIsPlaying}
-  //             selectedTool={selectedTool}
-  //           />
-  //           <ControlsBar
-  //             isPlaying={isPlaying}
-  //             handlePlayPause={handlePlayPause}
-  //             handleFrameNavigation={handleFrameNavigation}
-  //             currentTime={currentTime}
-  //             duration={duration}
-  //             formatTime={formatTime}
-  //             handleSeek={handleSeek}
-  //             handleSeekMouseDown={handleSeekMouseDown}
-  //             handleSeekMouseUp={handleSeekMouseUp}
-  //             handleSeekHover={handleSeekHover}
-  //             setIsSeeking={setIsSeeking}
-  //             setSeekHoverTime={setSeekHoverTime}
-  //             seekHoverTime={seekHoverTime}
-  //             getAnnotationSegments={getAnnotationSegments}
-  //             playbackRate={playbackRate}
-  //             handleSpeedChange={handleSpeedChange}
-  //             handleFullscreen={handleFullscreen}
-  //             setShowAnnotationsPanel={setShowAnnotationsPanel}
-  //           />
-  //         </div>
-  //       </div>
-  //     ) : (
-  //       // Split layout: left = video, right = annotation tools and undo/redo
-  //       <div className="flex gap-6 items-start w-full">
-  //         {/* Left: Video and controls */}
-  //         <div className="flex-1 flex flex-col items-center justify-center min-w-0">
-  //           <div
-  //             ref={containerRef}
-  //             className="relative bg-black rounded-lg overflow-hidden video-container"
-  //             style={{ aspectRatio: '16/9', width: 720, maxWidth: '70vw' }}
-  //           >
-  //             <VideoPlayer
-  //               videoRef={videoRef}
-  //               canvasRef={canvasRef}
-  //               containerRef={containerRef}
-  //               canvasSize={canvasSize}
-  //               handleTimeUpdate={handleTimeUpdate}
-  //               handleLoadedMetadata={handleLoadedMetadata}
-  //               handleCanvasMouseDown={handleCanvasMouseDown}
-  //               handleCanvasMouseMove={handleCanvasMouseMove}
-  //               handleCanvasMouseUp={handleCanvasMouseUp}
-  //               isPlaying={isPlaying}
-  //               setIsPlaying={setIsPlaying}
-  //               selectedTool={selectedTool}
-  //             />
-  //             <ControlsBar
-  //               isPlaying={isPlaying}
-  //               handlePlayPause={handlePlayPause}
-  //               handleFrameNavigation={handleFrameNavigation}
-  //               currentTime={currentTime}
-  //               duration={duration}
-  //               formatTime={formatTime}
-  //               handleSeek={handleSeek}
-  //               handleSeekMouseDown={handleSeekMouseDown}
-  //               handleSeekMouseUp={handleSeekMouseUp}
-  //               handleSeekHover={handleSeekHover}
-  //               setIsSeeking={setIsSeeking}
-  //               setSeekHoverTime={setSeekHoverTime}
-  //               seekHoverTime={seekHoverTime}
-  //               getAnnotationSegments={getAnnotationSegments}
-  //               playbackRate={playbackRate}
-  //               handleSpeedChange={handleSpeedChange}
-  //               handleFullscreen={handleFullscreen}
-  //               setShowAnnotationsPanel={setShowAnnotationsPanel}
-  //             />
-  //           </div>
-  //         </div>
-  //         {/* Right: Annotation Sidebar */}
-  //         <div className="annotation-sidebar">
-  //     {/* Undo/Redo */}
-  //     <div className="flex gap-2 mb-4">
-  //       <button
-  //         onClick={handleUndo}
-  //         disabled={history.length <= 1}
-  //         className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50"
-  //       >
-  //         Undo
-  //       </button>
-  //       <button
-  //         onClick={handleRedo}
-  //         disabled={redoStack.length === 0}
-  //         className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50"
-  //       >
-  //         Redo
-  //       </button>
-  //     </div>
-  //     {/* Shape tools */}
-  //     <div className="grid grid-cols-2 gap-2 mb-4">
-  //       <button onClick={() => setSelectedTool('rectangle')} className={`p-2 ${selectedTool === 'rectangle' ? 'bg-blue-600' : 'bg-gray-700'} text-white`}>Rectangle</button>
-  //       <button onClick={() => setSelectedTool('line')} className={`p-2 ${selectedTool === 'line' ? 'bg-blue-600' : 'bg-gray-700'} text-white`}>Line</button>
-  //       <button onClick={() => setSelectedTool('text')} className={`p-2 ${selectedTool === 'text' ? 'bg-blue-600' : 'bg-gray-700'} text-white`}>Text</button>
-  //       <button onClick={() => setSelectedTool('circle')} className={`p-2 ${selectedTool === 'circle' ? 'bg-blue-600' : 'bg-gray-700'} text-white`}>Circle</button>
-  //     </div>
-  //     {/* Annotation list */}
-  //     <div className="flex-1 overflow-y-auto">
-  //       <h4 className="font-medium mb-2">Annotations ({annotations.length})</h4>
-  //       <div className="space-y-2">
-  //         {annotations.map((ann) => (
-  //           <div key={ann.id} className="bg-gray-700 p-2 text-sm flex justify-between items-center rounded">
-  //             <span>
-  //               {ann.tool === 'text' ? ann.text : ann.tool} - {formatTime(ann.timestamp)}
-  //             </span>
-  //             <button
-  //               className="text-red-400 hover:text-red-300"
-  //               onClick={() => setAnnotations(prev => prev.filter(a => a.id !== ann.id))}
-  //             >
-  //               x
-  //             </button>
-  //           </div>
-  //         ))}
-  //       </div>
-  //     </div>
-  //   </div>
-  //       </div>
-  //     )}
-  //   </div>
-  // );
-  // Replace your return statement with this fixed version:
-
 return (
-  <div className="w-full min-h-screen bg-gray-900 text-white p-4">
-    <h1 className="text-2xl font-bold mb-6">Video Annotation Tool</h1>
-    {!showAnnotationsPanel ? (
-      // Centered video and controls only
-      <div className="flex flex-col items-center justify-center">
-        <div
-          ref={containerRef}
-          className="relative bg-black rounded-lg overflow-hidden video-container"
-          style={{ aspectRatio: '16/9', width: 720, maxWidth: '70vw' }}
-        >
-          <VideoPlayer
-            videoRef={videoRef}
-            canvasRef={canvasRef}
-            containerRef={containerRef}
-            canvasSize={canvasSize}
-            handleTimeUpdate={handleTimeUpdate}
-            handleLoadedMetadata={handleLoadedMetadata}
-            handleCanvasMouseDown={handleCanvasMouseDown}
-            handleCanvasMouseMove={handleCanvasMouseMove}
-            handleCanvasMouseUp={handleCanvasMouseUp}
-            isPlaying={isPlaying}
-            setIsPlaying={setIsPlaying}
-            selectedTool={selectedTool}
-          />
-          <ControlsBar
-            isPlaying={isPlaying}
-            handlePlayPause={handlePlayPause}
-            handleFrameNavigation={handleFrameNavigation}
-            currentTime={currentTime}
-            duration={duration}
-            formatTime={formatTime}
-            handleSeek={handleSeek}
-            handleSeekMouseDown={handleSeekMouseDown}
-            handleSeekMouseUp={handleSeekMouseUp}
-            handleSeekHover={handleSeekHover}
-            setIsSeeking={setIsSeeking}
-            setSeekHoverTime={setSeekHoverTime}
-            seekHoverTime={seekHoverTime}
-            getAnnotationSegments={getAnnotationSegments}
-            playbackRate={playbackRate}
-            handleSpeedChange={handleSpeedChange}
-            handleFullscreen={handleFullscreen}
-            setShowAnnotationsPanel={setShowAnnotationsPanel}
-          />
-        </div>
-      </div>
-    ) : (
-      // FIXED: Split layout with proper CSS classes
-      <div className="split-screen-container">
-        {/* Left: Video and controls */}
-        <div className="video-section">
+  <div className="w-full min-h-screen flex flex-col bg-gray-900 text-white">
+    {/* HEADER */}
+    <header className="app-header">
+      <h1>Video Annotation Tool</h1>
+    </header>
+    
+    <main className="flex-1 p-4 flex flex-col">
+      {/* Video Container - Always rendered with different layout classes */}
+      <div className={showAnnotationsPanel ? "split-screen-container" : "flex flex-col items-center justify-center"}>
+        {/* Video Section */}
+        <div className={showAnnotationsPanel ? "video-section" : ""}>
           <div
             ref={containerRef}
             className="relative bg-black rounded-lg overflow-hidden video-container"
-            style={{ aspectRatio: '16/9', width: '100%', maxWidth: 720 }}
+            style={{ 
+              aspectRatio: '16/9', 
+              width: showAnnotationsPanel ? '100%' : 720, 
+              maxWidth: showAnnotationsPanel ? 720 : '70vw' 
+            }}
           >
             <VideoPlayer
               videoRef={videoRef}
@@ -890,6 +739,8 @@ return (
               setIsPlaying={setIsPlaying}
               selectedTool={selectedTool}
             />
+            
+            {/* ControlsBar - Always rendered here */}
             <ControlsBar
               isPlaying={isPlaying}
               handlePlayPause={handlePlayPause}
@@ -908,65 +759,67 @@ return (
               playbackRate={playbackRate}
               handleSpeedChange={handleSpeedChange}
               handleFullscreen={handleFullscreen}
+              showAnnotationsPanel={showAnnotationsPanel}
               setShowAnnotationsPanel={setShowAnnotationsPanel}
             />
           </div>
         </div>
         
-        {/* Right: Annotation Sidebar - FIXED positioning */}
-        <div className="annotation-sidebar">
-          {/* Undo/Redo */}
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={handleUndo}
-              disabled={history.length <= 1}
-              className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
-            >
-              Undo
-            </button>
-            <button
-              onClick={handleRedo}
-              disabled={redoStack.length === 0}
-              className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
-            >
-              Redo
-            </button>
-          </div>
-          
-          {/* Shape tools */}
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            <button 
-              onClick={() => setSelectedTool('rectangle')} 
-              className={`p-2 rounded ${selectedTool === 'rectangle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
-            >
-              Rectangle
-            </button>
-            <button 
-              onClick={() => setSelectedTool('line')} 
-              className={`p-2 rounded ${selectedTool === 'line' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
-            >
-              Line
-            </button>
-            <button 
-              onClick={() => setSelectedTool('text')} 
-              className={`p-2 rounded ${selectedTool === 'text' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
-            >
-              Text
-            </button>
-            <button 
-              onClick={() => setSelectedTool('circle')} 
-              className={`p-2 rounded ${selectedTool === 'circle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
-            >
-              Circle
-            </button>
-          </div>
-          
-          {/* Annotation list */}
-          <div className="flex-1 overflow-y-auto">
-            <h4 className="font-medium mb-2 text-gray-200">Annotations ({annotations.length})</h4>
-            <div className="space-y-2">
-              {annotations.map((ann) => (
-                <div key={ann.id} className="bg-gray-700 p-2 text-sm flex justify-between items-center rounded hover:bg-gray-600 transition-colors">
+        {/* Annotation Sidebar - Only rendered when showAnnotationsPanel is true */}
+        {showAnnotationsPanel && (
+          <div className="annotation-sidebar">
+            {/* Undo/Redo */}
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={handleUndo}
+                disabled={history.length <= 1}
+                className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
+              >
+                Undo
+              </button>
+              <button
+                onClick={handleRedo}
+                disabled={redoStack.length === 0}
+                className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
+              >
+                Redo
+              </button>
+            </div>
+            
+            {/* Shape tools */}
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <button 
+                onClick={() => setSelectedTool('rectangle')} 
+                className={`p-2 rounded ${selectedTool === 'rectangle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+              >
+                Rectangle
+              </button>
+              <button 
+                onClick={() => setSelectedTool('line')} 
+                className={`p-2 rounded ${selectedTool === 'line' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+              >
+                Line
+              </button>
+              <button 
+                onClick={() => setSelectedTool('text')} 
+                className={`p-2 rounded ${selectedTool === 'text' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+              >
+                Text
+              </button>
+              <button 
+                onClick={() => setSelectedTool('circle')} 
+                className={`p-2 rounded ${selectedTool === 'circle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+              >
+                Circle
+              </button>
+            </div>
+            
+            {/* Annotation list */}
+            <div className="flex-1 overflow-y-auto">
+              <h4 className="font-medium mb-2 text-gray-200">Annotations ({annotations.length})</h4>
+              <div className="space-y-2">
+                {annotations.map((ann) => (
+                <div key={ann.id ?? ann._id} className="bg-gray-700 p-2 text-sm flex justify-between items-center rounded hover:bg-gray-600 transition-colors">
                   <span className="text-gray-200">
                     {ann.tool === 'text' ? ann.text : ann.tool} - {formatTime(ann.timestamp)}
                   </span>
@@ -987,8 +840,8 @@ return (
             </div>
           </div>
         </div>
+        )}
       </div>
-    )}
     {selectedAnnotationId && (() => {
   const ann = annotations.find(a => a.id === selectedAnnotationId);
   if (!ann) return null;
@@ -1048,6 +901,11 @@ return (
     />
   );
 })()}
+</main>
+ {/* FOOTER */}
+    <footer className="app-footer">
+      © {new Date().getFullYear()} Annotateway. All rights reserved.
+    </footer>
   </div>
 );
 };
