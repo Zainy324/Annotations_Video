@@ -1,20 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Play, Pause, RotateCcw, RotateCw, Maximize, Circle, Square, Minus, Type } from 'lucide-react';
 import './App.css';
-import VideoPlayer from './components/VideoPlayer.jsx';
-import ControlsBar from './components/ControlsBar.jsx';
-import AnnotationSidebar from './components/AnnotationSidebar.jsx';
-import AnnotationEditMenu from './components/AnnotationEditMenu.jsx';
+import VideoPlayer from './components/VideoPlayer';
+import ControlsBar from './components/ControlsBar';
+import AnnotationSidebar from './components/AnnotationSidebar';
+import AnnotationEditMenu from './components/AnnotationEditMenu';
 import { fetchAnnotations, createAnnotation, updateAnnotation, deleteAnnotation } from './api/annotations';
-
-// export default function App() {
-//   return <div style={{ color: 'red', fontSize: 40 }}>HELLO TEST</div>;}
-// const VideoAnnotationTool = () => {
-//   return (
-//     <div>
-//       <h2>Hello World</h2>
-//     </div>
-//   );
 
 
 const VideoAnnotationTool = () => {
@@ -47,9 +38,7 @@ const VideoAnnotationTool = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   // Edit colors and text state
   const [showEditOptions, setShowEditOptions] = useState(false);
-  const [showAnnotationsPanel, setShowAnnotationsPanel] = useState(false);
-  const colorOptions = ['#ff0000', '#00bcd4', '#4caf50', 
-    '#ffcc00', '#7c3aed'];
+  const colorOptions = ['#ff0000', '#00bcd4', '#4caf50', '#ffcc00', '#7c3aed'];
 const sizeOptions = [
   { label: 'Thin', value: 12 },
   { label: 'Normal', value: 16 },
@@ -66,8 +55,6 @@ const sizeOptions = [
     const saved = localStorage.getItem('annotationRedo');
     return saved ? JSON.parse(saved) : [];
   });
-
-  const skipRedoClearRef = useRef(false);
 
   // Video event handlers
   const handlePlayPause = () => {
@@ -577,16 +564,17 @@ const loadAnnotations = async () => {
   try {
     const loaded = await fetchAnnotations(VIDEO_ID);
 
+    // --- Rebuild history as step-by-step states ---
     let rebuiltHistory = [[]];
     loaded.forEach(ann => {
       rebuiltHistory.push([...rebuiltHistory[rebuiltHistory.length - 1], ann]);
     });
 
-    const storedHistory = localStorage.getItem('annotationHistory');
-    const storedRedo = localStorage.getItem('annotationRedo');
-    setHistory(storedHistory ? JSON.parse(storedHistory) : rebuiltHistory);
-    setRedoStack(storedRedo ? JSON.parse(storedRedo) : []);
+    setHistory(rebuiltHistory);
     setAnnotations(loaded);
+    localStorage.setItem('annotationHistory', JSON.stringify(rebuiltHistory));
+    setRedoStack([]);
+    localStorage.setItem('annotationRedo', JSON.stringify([]));
   } catch (error) {
     console.error("Failed to load annotations:", error);
     // Fallback to localStorage if API fails
@@ -630,411 +618,81 @@ useEffect(() => {
 }, []);
 
 const handleUndo = () => {
-  skipRedoClearRef.current = true;
   setHistory(prev => {
     if (prev.length <= 1) return prev;
     const newHistory = prev.slice(0, -1);
-    setRedoStack(r => [annotations, ...r]);
+    const lastState = prev[prev.length - 1];
+    setRedoStack(r => {
+      const newRedo = [annotations, ...r];
+      localStorage.setItem('annotationRedo', JSON.stringify(newRedo));
+      return newRedo;
+    });
     setAnnotations(newHistory[newHistory.length - 1]);
+    localStorage.setItem('annotationHistory', JSON.stringify(newHistory));
     return newHistory;
   });
 };
 
 const handleRedo = () => {
-  skipRedoClearRef.current = true;
   setRedoStack(prev => {
     if (prev.length === 0) return prev;
     const [next, ...rest] = prev;
-    setHistory(h => [...h, next]);
+    setHistory(h => {
+      const newHistory = [...h, next];
+      localStorage.setItem('annotationHistory', JSON.stringify(newHistory));
+      return newHistory;
+    });
     setAnnotations(next);
+    localStorage.setItem('annotationRedo', JSON.stringify(rest));
     return rest;
   });
 };
 
-// 1. Sync to localStorage
-useEffect(() => {
-  localStorage.setItem('annotationRedo', JSON.stringify(redoStack));
-}, [redoStack]);
-
-useEffect(() => {
-  localStorage.setItem('annotationHistory', JSON.stringify(history));
-}, [history]);
-
   useEffect(() => {
+    // Don't push to history if the last history entry is the same as current annotations
     setHistory(prev => {
       if (JSON.stringify(prev[prev.length - 1]) === JSON.stringify(annotations)) return prev;
       const newHistory = [...prev, annotations];
+      localStorage.setItem('annotationHistory', JSON.stringify(newHistory));
+      // Clear redo stack on new action
+      setRedoStack([]);
+      localStorage.setItem('annotationRedo', JSON.stringify([]));
       return newHistory;
     });
-
-    if (skipRedoClearRef.current) {
-      skipRedoClearRef.current = false;
-      return;
-    }
-    setRedoStack([]);
   }, [annotations]);
 
-  // return (
-  //   <div className="w-full min-h-screen bg-gray-900 text-white p-4">
-  //     <h1 className="text-2xl font-bold mb-6">Video Annotation Tool</h1>
-  //     {!showAnnotationsPanel ? (
-  //       // Centered video and controls only
-  //       <div className="flex flex-col items-center justify-center">
-  //         <div
-  //           ref={containerRef}
-  //           className="relative bg-black rounded-lg overflow-hidden video-container"
-  //           style={{ aspectRatio: '16/9', width: 720, maxWidth: '70vw' }}
-  //         >
-  //           <VideoPlayer
-  //             videoRef={videoRef}
-  //             canvasRef={canvasRef}
-  //             containerRef={containerRef}
-  //             canvasSize={canvasSize}
-  //             handleTimeUpdate={handleTimeUpdate}
-  //             handleLoadedMetadata={handleLoadedMetadata}
-  //             handleCanvasMouseDown={handleCanvasMouseDown}
-  //             handleCanvasMouseMove={handleCanvasMouseMove}
-  //             handleCanvasMouseUp={handleCanvasMouseUp}
-  //             isPlaying={isPlaying}
-  //             setIsPlaying={setIsPlaying}
-  //             selectedTool={selectedTool}
-  //           />
-  //           <ControlsBar
-  //             isPlaying={isPlaying}
-  //             handlePlayPause={handlePlayPause}
-  //             handleFrameNavigation={handleFrameNavigation}
-  //             currentTime={currentTime}
-  //             duration={duration}
-  //             formatTime={formatTime}
-  //             handleSeek={handleSeek}
-  //             handleSeekMouseDown={handleSeekMouseDown}
-  //             handleSeekMouseUp={handleSeekMouseUp}
-  //             handleSeekHover={handleSeekHover}
-  //             setIsSeeking={setIsSeeking}
-  //             setSeekHoverTime={setSeekHoverTime}
-  //             seekHoverTime={seekHoverTime}
-  //             getAnnotationSegments={getAnnotationSegments}
-  //             playbackRate={playbackRate}
-  //             handleSpeedChange={handleSpeedChange}
-  //             handleFullscreen={handleFullscreen}
-  //             setShowAnnotationsPanel={setShowAnnotationsPanel}
-  //           />
-  //         </div>
-  //       </div>
-  //     ) : (
-  //       // Split layout: left = video, right = annotation tools and undo/redo
-  //       <div className="flex gap-6 items-start w-full">
-  //         {/* Left: Video and controls */}
-  //         <div className="flex-1 flex flex-col items-center justify-center min-w-0">
-  //           <div
-  //             ref={containerRef}
-  //             className="relative bg-black rounded-lg overflow-hidden video-container"
-  //             style={{ aspectRatio: '16/9', width: 720, maxWidth: '70vw' }}
-  //           >
-  //             <VideoPlayer
-  //               videoRef={videoRef}
-  //               canvasRef={canvasRef}
-  //               containerRef={containerRef}
-  //               canvasSize={canvasSize}
-  //               handleTimeUpdate={handleTimeUpdate}
-  //               handleLoadedMetadata={handleLoadedMetadata}
-  //               handleCanvasMouseDown={handleCanvasMouseDown}
-  //               handleCanvasMouseMove={handleCanvasMouseMove}
-  //               handleCanvasMouseUp={handleCanvasMouseUp}
-  //               isPlaying={isPlaying}
-  //               setIsPlaying={setIsPlaying}
-  //               selectedTool={selectedTool}
-  //             />
-  //             <ControlsBar
-  //               isPlaying={isPlaying}
-  //               handlePlayPause={handlePlayPause}
-  //               handleFrameNavigation={handleFrameNavigation}
-  //               currentTime={currentTime}
-  //               duration={duration}
-  //               formatTime={formatTime}
-  //               handleSeek={handleSeek}
-  //               handleSeekMouseDown={handleSeekMouseDown}
-  //               handleSeekMouseUp={handleSeekMouseUp}
-  //               handleSeekHover={handleSeekHover}
-  //               setIsSeeking={setIsSeeking}
-  //               setSeekHoverTime={setSeekHoverTime}
-  //               seekHoverTime={seekHoverTime}
-  //               getAnnotationSegments={getAnnotationSegments}
-  //               playbackRate={playbackRate}
-  //               handleSpeedChange={handleSpeedChange}
-  //               handleFullscreen={handleFullscreen}
-  //               setShowAnnotationsPanel={setShowAnnotationsPanel}
-  //             />
-  //           </div>
-  //         </div>
-  //         {/* Right: Annotation Sidebar */}
-  //         <div className="annotation-sidebar">
-  //     {/* Undo/Redo */}
-  //     <div className="flex gap-2 mb-4">
-  //       <button
-  //         onClick={handleUndo}
-  //         disabled={history.length <= 1}
-  //         className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50"
-  //       >
-  //         Undo
-  //       </button>
-  //       <button
-  //         onClick={handleRedo}
-  //         disabled={redoStack.length === 0}
-  //         className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50"
-  //       >
-  //         Redo
-  //       </button>
-  //     </div>
-  //     {/* Shape tools */}
-  //     <div className="grid grid-cols-2 gap-2 mb-4">
-  //       <button onClick={() => setSelectedTool('rectangle')} className={`p-2 ${selectedTool === 'rectangle' ? 'bg-blue-600' : 'bg-gray-700'} text-white`}>Rectangle</button>
-  //       <button onClick={() => setSelectedTool('line')} className={`p-2 ${selectedTool === 'line' ? 'bg-blue-600' : 'bg-gray-700'} text-white`}>Line</button>
-  //       <button onClick={() => setSelectedTool('text')} className={`p-2 ${selectedTool === 'text' ? 'bg-blue-600' : 'bg-gray-700'} text-white`}>Text</button>
-  //       <button onClick={() => setSelectedTool('circle')} className={`p-2 ${selectedTool === 'circle' ? 'bg-blue-600' : 'bg-gray-700'} text-white`}>Circle</button>
-  //     </div>
-  //     {/* Annotation list */}
-  //     <div className="flex-1 overflow-y-auto">
-  //       <h4 className="font-medium mb-2">Annotations ({annotations.length})</h4>
-  //       <div className="space-y-2">
-  //         {annotations.map((ann) => (
-  //           <div key={ann.id} className="bg-gray-700 p-2 text-sm flex justify-between items-center rounded">
-  //             <span>
-  //               {ann.tool === 'text' ? ann.text : ann.tool} - {formatTime(ann.timestamp)}
-  //             </span>
-  //             <button
-  //               className="text-red-400 hover:text-red-300"
-  //               onClick={() => setAnnotations(prev => prev.filter(a => a.id !== ann.id))}
-  //             >
-  //               x
-  //             </button>
-  //           </div>
-  //         ))}
-  //       </div>
-  //     </div>
-  //   </div>
-  //       </div>
-  //     )}
-  //   </div>
-  // );
-  // Replace your return statement with this fixed version:
-
-return (
-  <div className="w-full min-h-screen bg-gray-900 text-white p-4">
-    <h1 className="text-2xl font-bold mb-6">Video Annotation Tool</h1>
-    {!showAnnotationsPanel ? (
-      // Centered video and controls only
-      <div className="flex flex-col items-center justify-center">
-        <div
-          ref={containerRef}
-          className="relative bg-black rounded-lg overflow-hidden video-container"
-          style={{ aspectRatio: '16/9', width: 720, maxWidth: '70vw' }}
-        >
-          <VideoPlayer
-            videoRef={videoRef}
-            canvasRef={canvasRef}
-            containerRef={containerRef}
-            canvasSize={canvasSize}
-            handleTimeUpdate={handleTimeUpdate}
-            handleLoadedMetadata={handleLoadedMetadata}
-            handleCanvasMouseDown={handleCanvasMouseDown}
-            handleCanvasMouseMove={handleCanvasMouseMove}
-            handleCanvasMouseUp={handleCanvasMouseUp}
-            isPlaying={isPlaying}
-            setIsPlaying={setIsPlaying}
-            selectedTool={selectedTool}
-          />
-          <ControlsBar
-            isPlaying={isPlaying}
-            handlePlayPause={handlePlayPause}
-            handleFrameNavigation={handleFrameNavigation}
-            currentTime={currentTime}
-            duration={duration}
-            formatTime={formatTime}
-            handleSeek={handleSeek}
-            handleSeekMouseDown={handleSeekMouseDown}
-            handleSeekMouseUp={handleSeekMouseUp}
-            handleSeekHover={handleSeekHover}
-            setIsSeeking={setIsSeeking}
-            setSeekHoverTime={setSeekHoverTime}
-            seekHoverTime={seekHoverTime}
-            getAnnotationSegments={getAnnotationSegments}
-            playbackRate={playbackRate}
-            handleSpeedChange={handleSpeedChange}
-            handleFullscreen={handleFullscreen}
-            setShowAnnotationsPanel={setShowAnnotationsPanel}
-          />
-        </div>
-      </div>
-    ) : (
-      // FIXED: Split layout with proper CSS classes
-      <div className="split-screen-container">
-        {/* Left: Video and controls */}
-        <div className="video-section">
-          <div
-            ref={containerRef}
-            className="relative bg-black rounded-lg overflow-hidden video-container"
-            style={{ aspectRatio: '16/9', width: '100%', maxWidth: 720 }}
-          >
-            <VideoPlayer
-              videoRef={videoRef}
-              canvasRef={canvasRef}
-              containerRef={containerRef}
-              canvasSize={canvasSize}
-              handleTimeUpdate={handleTimeUpdate}
-              handleLoadedMetadata={handleLoadedMetadata}
-              handleCanvasMouseDown={handleCanvasMouseDown}
-              handleCanvasMouseMove={handleCanvasMouseMove}
-              handleCanvasMouseUp={handleCanvasMouseUp}
-              isPlaying={isPlaying}
-              setIsPlaying={setIsPlaying}
-              selectedTool={selectedTool}
-            />
-            <ControlsBar
-              isPlaying={isPlaying}
-              handlePlayPause={handlePlayPause}
-              handleFrameNavigation={handleFrameNavigation}
-              currentTime={currentTime}
-              duration={duration}
-              formatTime={formatTime}
-              handleSeek={handleSeek}
-              handleSeekMouseDown={handleSeekMouseDown}
-              handleSeekMouseUp={handleSeekMouseUp}
-              handleSeekHover={handleSeekHover}
-              setIsSeeking={setIsSeeking}
-              setSeekHoverTime={setSeekHoverTime}
-              seekHoverTime={seekHoverTime}
-              getAnnotationSegments={getAnnotationSegments}
-              playbackRate={playbackRate}
-              handleSpeedChange={handleSpeedChange}
-              handleFullscreen={handleFullscreen}
-              setShowAnnotationsPanel={setShowAnnotationsPanel}
-            />
-          </div>
-        </div>
+  return (
+    <div className="max-w-6xl mx-auto p-4 bg-gray-900 text-white min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">Video Annotation Tool</h1>
+      
+      <div className="flex gap-6">
         
-        {/* Right: Annotation Sidebar - FIXED positioning */}
-        <div className="annotation-sidebar">
-          {/* Undo/Redo */}
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={handleUndo}
-              disabled={history.length <= 1}
-              className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
-            >
-              Undo
-            </button>
-            <button
-              onClick={handleRedo}
-              disabled={redoStack.length === 0}
-              className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
-            >
-              Redo
-            </button>
-          </div>
-          
-          {/* Shape tools */}
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            <button 
-              onClick={() => setSelectedTool('rectangle')} 
-              className={`p-2 rounded ${selectedTool === 'rectangle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
-            >
-              Rectangle
-            </button>
-            <button 
-              onClick={() => setSelectedTool('line')} 
-              className={`p-2 rounded ${selectedTool === 'line' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
-            >
-              Line
-            </button>
-            <button 
-              onClick={() => setSelectedTool('text')} 
-              className={`p-2 rounded ${selectedTool === 'text' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
-            >
-              Text
-            </button>
-            <button 
-              onClick={() => setSelectedTool('circle')} 
-              className={`p-2 rounded ${selectedTool === 'circle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
-            >
-              Circle
-            </button>
-          </div>
-          
-          {/* Annotation list */}
-          <div className="flex-1 overflow-y-auto">
-            <h4 className="font-medium mb-2 text-gray-200">Annotations ({annotations.length})</h4>
-            <div className="space-y-2">
-              {annotations.map((ann) => (
-                <div key={ann.id} className="bg-gray-700 p-2 text-sm flex justify-between items-center rounded hover:bg-gray-600 transition-colors">
-                  <span className="text-gray-200">
-                    {ann.tool === 'text' ? ann.text : ann.tool} - {formatTime(ann.timestamp)}
-                  </span>
-                  {/* <button
-                    className="text-red-400 hover:text-red-300 ml-2 px-2 py-1 hover:bg-red-900 hover:bg-opacity-30 rounded transition-colors"
-                    onClick={() => setAnnotations(prev => prev.filter(a => a.id !== ann.id))}
-                  >
-                    ×
-                  </button> */}
-                  <button
-  className="text-red-400 hover:text-red-300 ml-2 px-2 py-1 hover:bg-red-900 hover:bg-opacity-30 rounded transition-colors"
-  onClick={() => setAnnotations(prev => prev.filter(a => (a.id ?? a._id) !== (ann.id ?? ann._id)))}
->
-  ×
-</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
-    {selectedAnnotationId && (() => {
+        {/* Main Video Area */}
+        <div className="flex-1">
+            <VideoPlayer
+  videoRef={videoRef}
+  canvasRef={canvasRef}
+  containerRef={containerRef}
+  canvasSize={canvasSize}
+  handleTimeUpdate={handleTimeUpdate}
+  handleLoadedMetadata={handleLoadedMetadata}
+  handleCanvasMouseDown={handleCanvasMouseDown}
+  handleCanvasMouseMove={handleCanvasMouseMove}
+  handleCanvasMouseUp={handleCanvasMouseUp}
+  isPlaying={isPlaying}
+  selectedTool={selectedTool}
+/>
+ {/* AnnotationEditMenu */}
+{selectedAnnotationId && (() => {
   const ann = annotations.find(a => a.id === selectedAnnotationId);
   if (!ann) return null;
-
-  // Get DOM nodes
-  const container = containerRef.current;
-  const canvas = canvasRef.current;
-  if (!container || !canvas) return null;
-
-  // Get bounding rects
-  const containerRect = container.getBoundingClientRect();
-  const canvasRect = canvas.getBoundingClientRect();
-
-  // Calculate annotation center (for shapes) or start (for text) in canvas coordinates
-  let annX, annY;
-  if (ann.tool === 'text') {
-    annX = ann.startX;
-    annY = ann.startY;
-  } else {
-    const minX = Math.min(ann.startX, ann.endX ?? ann.startX);
-    const maxX = Math.max(ann.startX, ann.endX ?? ann.startX);
-    const minY = Math.min(ann.startY, ann.endY ?? ann.startY);
-    annX = (minX + maxX) / 2;
-    annY = minY;
-  }
-
-  // Convert canvas coordinates to container (video) pixel coordinates
-  const scaleX = canvasRect.width / canvas.width;
-  const scaleY = canvasRect.height / canvas.height;
-  let menuX = annX * scaleX;
-  let menuY = annY * scaleY;
-
-  // Offset menu 45px above the annotation
-  menuY = menuY - 45;
-
-  // Clamp menuX/menuY to stay inside container
-  const menuWidth = 160; // Approximate width of your menu in px
-  const menuHeight = 40; // Height above annotation
-  menuX = Math.max(menuWidth / 2, Math.min(menuX, containerRect.width - menuWidth / 2));
-  menuY = Math.max(0, Math.min(menuY, containerRect.height - menuHeight));
-
+  const left = (ann.startX / canvasSize.width) * 100;
+  const top = (ann.startY / canvasSize.height) * 100;
   return (
     <AnnotationEditMenu
       ann={ann}
-      menuX={menuX}
-      menuY={menuY}
+      left={left}
+      top={top}
       movingAnnotationId={movingAnnotationId}
       setMovingAnnotationId={setMovingAnnotationId}
       setIsDragging={setIsDragging}
@@ -1048,8 +706,74 @@ return (
     />
   );
 })()}
-  </div>
-);
+
+<ControlsBar
+  isPlaying={isPlaying}
+  handlePlayPause={handlePlayPause}
+  handleFrameNavigation={handleFrameNavigation}
+  currentTime={currentTime}
+  duration={duration}
+  formatTime={formatTime}
+  handleSeek={handleSeek}
+  handleSeekMouseDown={handleSeekMouseDown}
+  handleSeekMouseUp={handleSeekMouseUp}
+  handleSeekHover={handleSeekHover}
+  setIsSeeking={setIsSeeking}
+  setSeekHoverTime={setSeekHoverTime}
+  seekHoverTime={seekHoverTime}
+  getAnnotationSegments={getAnnotationSegments}
+  playbackRate={playbackRate}
+  handleSpeedChange={handleSpeedChange}
+  handleFullscreen={handleFullscreen}
+  handleUndo={handleUndo}
+  handleRedo={handleRedo}
+  history={history}
+  redoStack={redoStack}
+/>
+<AnnotationSidebar
+  selectedTool={selectedTool}
+  setSelectedTool={setSelectedTool}
+  canvasSize={canvasSize}
+  isPlaying={isPlaying}
+  currentTime={currentTime}
+  isDrawing={isDrawing}
+  annotations={annotations}
+  setAnnotations={setAnnotations}
+  formatTime={formatTime}
+/>
+
+            
+
+  
+    
+          
+        </div>
+        
+       
+      </div>
+
+      {isFullscreen && (
+        <>
+          <button
+            className="fixed top-1/2 right-4 z-50 bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+            style={{ transform: 'translateY(-120%)' }}
+            onClick={() => setShowToolsSidebar((v) => !v)}
+            title="Show/Hide Drawing Tools"
+          >
+            D
+          </button>
+          <button
+            className="fixed top-1/2 right-4 z-50 bg-yellow-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+            style={{ transform: 'translateY(20%)' }}
+            onClick={() => setShowAnnotationsSidebar((v) => !v)}
+            title="Show/Hide Saved Annotations"
+          >
+            S
+          </button>
+        </>
+      )}
+    </div>
+  );
 };
 
 export default VideoAnnotationTool;

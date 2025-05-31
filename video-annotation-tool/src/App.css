@@ -29,6 +29,22 @@
   pointer-events: auto;
 }
 
+.controls-overlay .controls-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  min-width: 0;
+  width: 100%;
+}
+
+.controls-overlay .controls-row > * {
+  min-width: 0;
+  flex-shrink: 0;
+}
+
 /* Enhanced progress bar */
 .progress-wrapper {
   margin-bottom: 1rem;
@@ -85,7 +101,7 @@
 .progress-container {
   position: relative;
   height: 4px;
-  background-color: transparent; /* Changed from rgba(255,255,255,0.2) */
+  background-color: transparent;
   cursor: pointer;
   margin-bottom: 10px;
 }
@@ -96,9 +112,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(4, 30, 33, 0.562); /* Solid gray background */
+  background-color: rgba(4, 30, 33, 0.562);
   border-radius: 2px;
-  z-index: 1; /* Ensure it's above the container */
+  z-index: 1;
 }
 
 .progress-hover {
@@ -123,7 +139,6 @@
   transition: opacity 0.2s;
 }
 
-/* Update these styles */
 .progress-annotations {
   position: absolute;
   top: 0;
@@ -131,7 +146,7 @@
   bottom: 0;
   background-color: #ffcc00;
   border-radius: 2px;
-  z-index: 3; /* Higher than progress-played */
+  z-index: 3;
 }
 
 .progress-played {
@@ -141,7 +156,7 @@
   bottom: 0;
   background-color: #ff0000;
   border-radius: 2px;
-  z-index: 2; /* Lower than annotations */
+  z-index: 2;
 }
 
 .progress-container:hover .progress-thumb {
@@ -151,12 +166,26 @@
 .annotation-edit-menu {
   position: absolute;
   z-index: 20;
-  background: rgba(30, 30, 30, 0.95);
+  background: rgba(30, 30, 30, 0.97);
   padding: 4px 8px;
   border-radius: 4px;
   display: flex;
   gap: 8px;
   align-items: center;
+  min-width: 80px;
+  max-width: 90vw;
+  box-sizing: border-box;
+  /* Responsive: clamp to video bounds */
+  pointer-events: auto;
+}
+
+@media (max-width: 600px) {
+  .annotation-edit-menu {
+    font-size: 0.85rem;
+    min-width: 60px;
+    padding: 2px 4px;
+    gap: 4px;
+  }
 }
 
 .annotation-edit-btn {
@@ -188,3 +217,103 @@
   color: #fff;
 }
 
+.controls-overlay button,
+.controls-overlay select {
+  background: transparent !important;
+  color: #fff !important;
+  border: none;
+  box-shadow: none;
+  transition: background 0.2s;
+}
+
+.controls-overlay button:hover,
+.controls-overlay select:hover {
+  background: rgba(255,255,255,0.08) !important;
+}
+
+.controls-overlay select {
+  border: 1px solid #fff !important;
+  border-radius: 0 !important;
+}
+
+.controls-overlay button:focus,
+.controls-overlay select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff3;
+}
+
+.controls-overlay .group .tooltip {
+  position: absolute;
+  left: 50%;
+  top: -2rem;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.9);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 0 !important;
+  font-size: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  z-index: 50;
+}
+
+.controls-overlay .group:hover .tooltip {
+  opacity: 1;
+}
+
+/* FIXED: Annotation sidebar positioning */
+.annotation-sidebar {
+  width: 20rem; /* 320px */
+  min-width: 16rem;
+  max-width: 24rem;
+  background: #23272f;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  height: 540px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 24px #0004;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* ADDED: Split screen container styles */
+.split-screen-container {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+}
+
+.video-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0; /* Allow shrinking */
+}
+
+/* ADDED: Responsive adjustments */
+@media (max-width: 1200px) {
+  .annotation-sidebar {
+    width: 18rem;
+    min-width: 14rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .split-screen-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .annotation-sidebar {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    min-height: 400px;
+  }
+}
