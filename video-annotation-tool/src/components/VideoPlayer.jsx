@@ -12,7 +12,8 @@ const VideoPlayer = ({
   handleCanvasMouseUp,
   isPlaying,
   setIsPlaying,
-  selectedTool
+  selectedTool,
+  videoUrl
 }) => ( <>
 {/* <div 
             ref={containerRef}
@@ -28,7 +29,7 @@ const VideoPlayer = ({
               onPause={() => setIsPlaying(false)}
               crossOrigin="anonymous"
             >
-              <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+              <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
             

@@ -268,7 +268,7 @@
   width: 20rem; /* 320px */
   min-width: 16rem;
   max-width: 24rem;
-  background: #23272f;
+  background: #081d45;
   border-radius: 0.5rem;
   padding: 1rem;
   height: 540px;
@@ -345,6 +345,7 @@
   font-size: 1.1rem;
   font-weight: 500;
   box-shadow: 0 -2px 12px #0002;
+  margin-top: 4rem; /* Add this line for spacing */
 }
 
 @media (max-width: 600px) {
@@ -356,8 +357,6 @@
     font-size: 1.3rem;
   }
 }
-
-
 
 /* Custom Switch Styles */
 .switch {
@@ -582,5 +581,102 @@
     width: 20px;
     top: 4px;
     left: 4px;
+  }
+}
+
+/* Align annotation rows and delete buttons */
+
+.annotation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #374151; /* same as bg-gray-700 */
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s;
+}
+
+.annotation-row:hover {
+  background: #4b5563; /* same as hover:bg-gray-600 */
+}
+
+.annotation-text {
+  flex: 1;
+  min-width: 0;
+  margin-right: 1rem;
+  color: #e5e7eb; /* same as text-gray-200 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.annotation-delete {
+  color: #f87171; /* text-red-400 */
+  background: transparent;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  min-width: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.annotation-delete:hover {
+  background: #7f1d1d;
+  color: #fff;
+}
+
+.icon-responsive {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 600px) {
+  .icon-responsive {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.controls-menu-dialog select {
+  color: #fff;
+  background: #23272f;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: 8px;
+}
+.controls-menu-dialog label {
+  font-size: 1rem;
+  font-weight: 500;
+}
+.controls-menu-dialog .annotation-toggle-btn {
+  margin-top: 0.5rem;
+}
+
+.video-title-youtube {
+  font-family: "Roboto", Arial, Helvetica, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #201e1e;
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  text-shadow: 0 2px 8px #0006;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  /* Responsive */
+  word-break: break-word;
+}
+
+@media (max-width: 600px) {
+  .video-title-youtube {
+    font-size: 1rem;
+    margin-top: 0.2rem;
+    margin-bottom: 0.3rem;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
   }
 }

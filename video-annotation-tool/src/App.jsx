@@ -23,7 +23,8 @@ const VideoAnnotationTool = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [playbackRate, setPlaybackRate] = useState(1);
-  
+  const videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+const videoName = videoUrl.split('/').pop().replace(/\.[^/.]+$/, '').replace(/([A-Z])/g, ' $1').trim();
   // Annotation state
   const [annotations, setAnnotations] = useState([]);
   const [selectedTool, setSelectedTool] = useState('circle');
@@ -738,7 +739,14 @@ return (
               isPlaying={isPlaying}
               setIsPlaying={setIsPlaying}
               selectedTool={selectedTool}
+              videoUrl={videoUrl}
+
             />
+            {/* Video Title */}
+  <div className="video-title-youtube">
+    {videoName}
+  </div>
+
             
             {/* ControlsBar - Always rendered here */}
             <ControlsBar
@@ -761,6 +769,8 @@ return (
               handleFullscreen={handleFullscreen}
               showAnnotationsPanel={showAnnotationsPanel}
               setShowAnnotationsPanel={setShowAnnotationsPanel}
+              containerRef={containerRef}
+
             />
           </div>
         </div>
@@ -817,26 +827,33 @@ return (
             {/* Annotation list */}
             <div className="flex-1 overflow-y-auto">
               <h4 className="font-medium mb-2 text-gray-200">Annotations ({annotations.length})</h4>
-              <div className="space-y-2">
-                {annotations.map((ann) => (
-                <div key={ann.id ?? ann._id} className="bg-gray-700 p-2 text-sm flex justify-between items-center rounded hover:bg-gray-600 transition-colors">
-                  <span className="text-gray-200">
-                    {ann.tool === 'text' ? ann.text : ann.tool} - {formatTime(ann.timestamp)}
-                  </span>
-                  {/* <button
-                    className="text-red-400 hover:text-red-300 ml-2 px-2 py-1 hover:bg-red-900 hover:bg-opacity-30 rounded transition-colors"
-                    onClick={() => setAnnotations(prev => prev.filter(a => a.id !== ann.id))}
-                  >
-                    ×
-                  </button> */}
-                  <button
-  className="text-red-400 hover:text-red-300 ml-2 px-2 py-1 hover:bg-red-900 hover:bg-opacity-30 rounded transition-colors"
-  onClick={() => setAnnotations(prev => prev.filter(a => (a.id ?? a._id) !== (ann.id ?? ann._id)))}
+              {/* <div className="space-y-2"> */}
+              <div
+className="space-y-2"
+  style={{
+    maxHeight: '180px', // ~5 items * 52px each, adjust as needed
+    overflowY: 'auto',
+    paddingRight: 4,
+  }}
 >
-  ×
-</button>
-                </div>
-              ))}
+                {[...annotations]
+  .slice() // copy array
+  .reverse() // newest first
+  .map((ann) => (
+    <div key={ann.id ?? ann._id} className="annotation-row">
+      <span className="annotation-text">
+        {ann.tool === 'text' ? ann.text : ann.tool} - {formatTime(ann.timestamp)}
+      </span>
+      <button
+        className="annotation-delete"
+        onClick={() => setAnnotations(prev => prev.filter(a => (a.id ?? a._id) !== (ann.id ?? ann._id)))}
+        aria-label="Delete annotation"
+
+      >
+        ×
+      </button>
+    </div>
+))}
             </div>
           </div>
         </div>
@@ -902,8 +919,9 @@ return (
   );
 })()}
 </main>
- {/* FOOTER */}
-    <footer className="app-footer">
+
+    {/* FOOTER */}
+    <footer className="app-footer mt-4">
       © {new Date().getFullYear()} Annotateway. All rights reserved.
     </footer>
   </div>
