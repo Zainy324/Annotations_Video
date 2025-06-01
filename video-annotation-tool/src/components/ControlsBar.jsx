@@ -154,13 +154,6 @@ const ControlsBar = (props) => {
         {/* RIGHT CONTROLS */}
         <div className="flex-1" /> {/* This pushes the next buttons to the right */}
 
-        <button
-          className="p-1.5 bg-gray-600 hover:bg-gray-700 rounded flex-shrink-0 ml-auto"
-          onClick={handleFullscreen}
-          title="Fullscreen"
-        >
-          <Maximize className="icon-responsive" />
-        </button>
         <div className="relative group flex-shrink-0 min-w-0">
           <button
             ref={menuBtnRef}
@@ -172,6 +165,13 @@ const ControlsBar = (props) => {
             <svg className="icon-responsive" width="20" height="20" fill="none" stroke="currentColor"><circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="16" cy="10" r="1.5"/></svg>
           </button>
         </div>
+        <button
+          className="p-1.5 bg-gray-600 hover:bg-gray-700 rounded flex-shrink-0 ml-2"
+          onClick={handleFullscreen}
+          title="Fullscreen"
+        >
+          <Maximize className="icon-responsive" />
+        </button>
       </div>
       {/* Portal menu */}
       {showMenu && props.containerRef?.current && createPortal(

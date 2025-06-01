@@ -36,7 +36,7 @@ const videoName = videoUrl.split('/').pop().replace(/\.[^/.]+$/, '').replace(/([
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [movingAnnotationId, setMovingAnnotationId] = useState(null);
-  
+  const [flashAnnotationId, setFlashAnnotationId] = useState(null);
   const VIDEO_ID = 'big_buck_bunny'; // Or use your video's unique identifier
   // Refs
   const videoRef = useRef(null);
@@ -51,12 +51,19 @@ const videoName = videoUrl.split('/').pop().replace(/\.[^/.]+$/, '').replace(/([
   const [showAnnotationsPanel, setShowAnnotationsPanel] = useState(false);
   const colorOptions = ['#ff0000', '#00bcd4', '#4caf50', 
     '#ffcc00', '#7c3aed'];
-const sizeOptions = [
-  { label: 'Thin', value: 12 },
+const shapeSizeOptions = [
+  { label: 'Thin', value: 2 },
+  { label: 'Normal', value: 4 },
+  { label: 'Medium', value: 6 },
+  { label: 'Thick', value: 10 },
+  { label: 'Extra', value: 16 }
+];
+const textSizeOptions = [
+  { label: 'Small', value: 12 },
   { label: 'Normal', value: 16 },
   { label: 'Medium', value: 20 },
-  { label: 'Thick', value: 28 },
-  { label: 'Extra', value: 36 }
+  { label: 'Large', value: 28 },
+  { label: 'Huge', value: 36 }
 ];
   // History and Redo stack
   const [history, setHistory] = useState(() => {
@@ -161,6 +168,8 @@ const sizeOptions = [
   return segments;
 };
 
+
+
 useEffect(() => {
     setHistory(prev => {
       if (JSON.stringify(prev[prev.length - 1]) === JSON.stringify(annotations)) return prev;
@@ -245,6 +254,9 @@ useEffect(() => {
     };
     setCurrentAnnotation(newAnnotation);
   };
+useEffect(() => {
+  setShowEditOptions(false);
+}, [selectedAnnotationId]);
 
   const handleCanvasMouseMove = (e) => {
     const canvas = canvasRef.current;
@@ -325,6 +337,7 @@ useEffect(() => {
     const visibleAnnotations = annotations.filter(ann => 
       currentTime >= ann.timestamp && currentTime <= ann.timestamp + 3
     );
+    
     
     const allAnnotations = currentAnnotation 
       ? [...visibleAnnotations, currentAnnotation]
@@ -831,29 +844,51 @@ return (
               <div
 className="space-y-2"
   style={{
-    maxHeight: '180px', // ~5 items * 52px each, adjust as needed
+    maxHeight: '180px',
     overflowY: 'auto',
     paddingRight: 4,
   }}
 >
                 {[...annotations]
-  .slice() // copy array
-  .reverse() // newest first
-  .map((ann) => (
-    <div key={ann.id ?? ann._id} className="annotation-row">
-      <span className="annotation-text">
-        {ann.tool === 'text' ? ann.text : ann.tool} - {formatTime(ann.timestamp)}
-      </span>
-      <button
-        className="annotation-delete"
-        onClick={() => setAnnotations(prev => prev.filter(a => (a.id ?? a._id) !== (ann.id ?? ann._id)))}
-        aria-label="Delete annotation"
+    .slice()
+    .reverse()
+    .map((ann) => (
+      <div
+        key={ann.id ?? ann._id}
+        className={`annotation-row 
+          ${selectedAnnotationId === (ann.id ?? ann._id) ? 'annotation-row-active' : ''}
+          ${flashAnnotationId === (ann.id ?? ann._id) ? 'flash' : ''}
+          `}
+        style={{ cursor: 'pointer' }}
+        onClick={() => {
+          // Seek video and highlight annotation
+          if (videoRef.current) {
+            videoRef.current.currentTime = ann.timestamp;
+            setCurrentTime(ann.timestamp);
+          }
+          setSelectedAnnotationId(ann.id ?? ann._id);
 
+          // Flash highlight
+          setFlashAnnotationId(ann.id ?? ann._id);
+          setTimeout(() => setFlashAnnotationId(null), 1200); // 1.2s highlight
+        }}
       >
-        ×
-      </button>
-    </div>
-))}
+        <span className="annotation-text">
+          {ann.tool === 'text' ? ann.text : ann.tool} - {formatTime(ann.timestamp)}
+        </span>
+        <button
+          className="annotation-delete"
+          onClick={e => {
+            e.stopPropagation();
+            setAnnotations(prev => prev.filter(a => (a.id ?? a._id) !== (ann.id ?? ann._id)));
+          }}
+          aria-label="Delete annotation"
+        >
+          ×
+        </button>
+      </div>
+    ))}
+
             </div>
           </div>
         </div>
@@ -913,8 +948,10 @@ className="space-y-2"
       showEditOptions={showEditOptions}
       setShowEditOptions={setShowEditOptions}
       colorOptions={colorOptions}
-      sizeOptions={sizeOptions}
+      shapeSizeOptions={shapeSizeOptions}
+      textSizeOptions={textSizeOptions}
       updateAnnotation={updateAnnotation}
+      sizeOptions={ann.tool === 'text' ? textSizeOptions : shapeSizeOptions}
     />
   );
 })()}

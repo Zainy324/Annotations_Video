@@ -136,101 +136,79 @@ const AnnotationEditMenu = ({
 
     {/* Show color/size options if toggled */}
     {showEditOptions && (
-      <div
-        className="absolute z-50 bg-gray-800 p-3 rounded shadow-lg flex flex-col gap-2"
-        style={{ left: '110%', top: 0, minWidth: 120 }}
-        onMouseLeave={() => setShowEditOptions(false)}
-      >
-        {/* Color Picker (for all) */}
-        <div>
-          <div className="text-xs mb-1">Color:</div>
-          <div className="flex gap-2">
-            {colorOptions.map(color => (
-              <button
-                key={color}
-                onClick={async () => {
-                  // setAnnotations(prev =>
-                  //   prev.map(a =>
-                  //     a.id === ann.id ? { ...a, color } : a
-                  //   )
-                  // );
-                  setAnnotations(prev =>
-  prev.map(a =>
-    (a.id ?? a._id) === (ann.id ?? ann._id) ? { ...a, color } : a
-  )
-);
-                  setShowEditOptions(false);
-                  try {
-                    await updateAnnotation(ann._id || ann.id, { color });
-                  } catch (error) {
-                    console.error("Failed to update annotation color:", error);
-                  }
-                }}
-                style={{
-                  background: color,
-                  border: ann.color === color ? '2px solid #fff' : '2px solid transparent',
-                  width: 24,
-                  height: 24,
-                  borderRadius: '50%',
-                  cursor: 'pointer'
-                }}
-                aria-label={`Color ${color}`}
-              />
-            ))}
-          </div>
-        </div>
-        {/* Size/Thickness Picker (for all) */}
-        <div>
-          <div className="text-xs mb-1">
-            {ann.tool === 'text' ? 'Font Size:' : 'Thickness:'}
-          </div>
-          <div className="flex gap-2">
-            {sizeOptions.map(opt => (
-              <button
-                key={opt.value}
-                onClick={async () => {
-                  // setAnnotations(prev =>
-                  //   prev.map(a =>
-                  //     a.id === ann.id ? { ...a, size: opt.value } : a
-                  //   )
-                  // );
-                  setAnnotations(prev =>
-  prev.map(a =>
-    (a.id ?? a._id) === (ann.id ?? ann._id) ? { ...a, size: opt.value } : a
-  )
-);
-                  setShowEditOptions(false);
-                  try {
-                    await updateAnnotation(ann._id || ann.id, { size: opt.value });
-                  } catch (error) {
-                    console.error("Failed to update annotation size:", error);
-                  }
-                }}
-                style={{
-                  background: ann.size === opt.value ? '#fff' : '#444',
-                  border: 'none',
-                  borderRadius: 4,
-                  width: 32,
-                  height: 32,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer'
-                }}
-                aria-label={opt.label}
-              >
-                <div style={{
-                  background: '#222',
-                  height: ann.tool === 'text' ? opt.value / 2 : opt.value,
-                  width: 20,
-                  borderRadius: 2
-                }} />
-              </button>
-            ))}
-          </div>
-        </div>
+  <div
+    className="annotation-edit-dropdown"
+    style={{
+      position: 'absolute',
+      left: '110%',
+      top: 0,
+    }}
+    onMouseLeave={() => setShowEditOptions(false)}
+  >
+    {/* Color Picker */}
+    <div>
+      <div className="text-xs mb-1">Color:</div>
+      <div className="color-row">
+        {colorOptions.map(color => (
+          <button
+            key={color}
+            className={`color-btn${ann.color === color ? ' selected' : ''}`}
+            style={{ background: color }}
+            onClick={async () => {
+              setAnnotations(prev =>
+                prev.map(a =>
+                  (a.id ?? a._id) === (ann.id ?? ann._id) ? { ...a, color } : a
+                )
+              );
+              setShowEditOptions(false);
+              try {
+                await updateAnnotation(ann._id || ann.id, { color });
+              } catch (error) {
+                console.error("Failed to update annotation color:", error);
+              }
+            }}
+            aria-label={`Color ${color}`}
+          />
+        ))}
       </div>
-    )}
+    </div>
+    {/* Size/Thickness Picker */}
+    <div>
+      <div className="text-xs mb-1">
+        {ann.tool === 'text' ? 'Font Size:' : 'Thickness:'}
+      </div>
+      <div className="size-row">
+        {sizeOptions.map(opt => (
+          <button
+            key={opt.value}
+            className={`size-btn${ann.size === opt.value ? ' selected' : ''}`}
+            onClick={async () => {
+              setAnnotations(prev =>
+                prev.map(a =>
+                  (a.id ?? a._id) === (ann.id ?? ann._id) ? { ...a, size: opt.value } : a
+                )
+              );
+              setShowEditOptions(false);
+              try {
+                await updateAnnotation(ann._id || ann.id, { size: opt.value });
+              } catch (error) {
+                console.error("Failed to update annotation size:", error);
+              }
+            }}
+            aria-label={opt.label}
+          >
+            <div
+              className="size-btn-bar"
+              style={{
+                height: ann.tool === 'text' ? opt.value / 2 : opt.value / 2
+              }}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
   </div>
 );
 
