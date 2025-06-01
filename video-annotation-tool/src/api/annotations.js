@@ -1,8 +1,14 @@
-const API_URL = 'http://localhost:5000/api/annotations';
+import { API_BASE_URL } from '../config/api';
 
 export const fetchAnnotations = async (videoId) => {
-  const response = await fetch(`${API_URL}/${videoId}`);
-  return await response.json();
+  try {
+    const response = await fetch(`${API_BASE_URL}/annotations/${videoId}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching annotations:', error);
+    throw error;
+  }
 };
 
 export const createAnnotation = async (annotation) => {

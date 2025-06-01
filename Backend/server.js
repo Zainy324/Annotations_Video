@@ -18,3 +18,13 @@ app.use('/api/annotations', annotationsRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://annotations-video.vercel.app',
+    /\.vercel\.app$/
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
