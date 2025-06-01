@@ -91,14 +91,18 @@ const AnnotixIcon = ({ size = 40, className = "" }) => (
 );
 
 // The Annotix logo with icon and text
-const AnnotixLogo = ({ iconSize = 70 , style = {} }) => (
-  <span style={{ display: "flex", alignItems: "center", ...style }}>
+const AnnotixLogo = ({ iconSize = window.innerWidth <= 768 ? 40 : 70, style = {} }) => (
+  <span style={{ 
+    display: "flex", 
+    alignItems: "center",
+    ...style 
+  }}>
     <AnnotixIcon size={iconSize} />
     <span
       style={{
         fontFamily: '"Montserrat", "Roboto", Arial, sans-serif',
         fontWeight: 1400,
-        fontSize: "4 rem",
+        fontSize: window.innerWidth <= 768 ? "2rem" : "4rem",
         letterSpacing: "-1.5px",
         color: "#fff",
         textShadow: "0 2px 8px #0006, 0 1px 0rgb(82, 121, 20)",
@@ -106,7 +110,7 @@ const AnnotixLogo = ({ iconSize = 70 , style = {} }) => (
         WebkitBackgroundClip: "text",
         WebkitTextFillColor: "transparent",
         display: "inline-block",
-        marginLeft: 18
+        marginLeft: window.innerWidth <= 768 ? 10 : 18
       }}
     >
       Annotix

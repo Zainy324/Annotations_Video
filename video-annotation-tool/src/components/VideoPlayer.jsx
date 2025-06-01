@@ -42,12 +42,30 @@ const VideoPlayer = ({
               onMouseMove={handleCanvasMouseMove}
               onMouseUp={handleCanvasMouseUp}
               onMouseLeave={handleCanvasMouseUp}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                handleCanvasMouseDown({
+                  clientX: touch.clientX,
+                  clientY: touch.clientY
+                });
+              }}
+              onTouchMove={(e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                handleCanvasMouseMove({
+                  clientX: touch.clientX,
+                  clientY: touch.clientY
+                });
+              }}
+              onTouchEnd={handleCanvasMouseUp}
               style={{ 
                 display: !isPlaying ? 'block' : 'none',
                 width: '100%',
                 height: '100%',
                 zIndex: 10,
-                cursor: selectedTool === 'text' ? 'text' : 'crosshair'
+                cursor: selectedTool === 'text' ? 'text' : 'crosshair',
+                touchAction: 'none' // Prevent default touch behaviors
               }}
             />
             </>

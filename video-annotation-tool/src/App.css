@@ -349,19 +349,59 @@ html, body {
 @media (max-width: 768px) {
   .split-screen-container {
     flex-direction: column;
+    padding: 0.5rem;
     gap: 1rem;
-    padding: 1rem;
-
   }
-  
-  .annotation-sidebar {
+
+  .video-container {
+    width: 100% !important;
+    margin: 0;
+  }
+
+  .sidebar-container-with-tools {
     width: 100%;
-    max-width: none;
-    height: auto;
-    min-height: 400px;
-     margin-top: 2.5rem;
-  margin-bottom: 2.5rem;
-    
+    padding: 1rem;
+    margin: 0;
+  }
+
+  .annotation-header-text {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .grid.grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .annotation-row {
+    padding: 0.35rem;
+  }
+
+  .video-title-below {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .controls-row {
+    gap: 0.25rem;
+  }
+
+  .icon-responsive {
+    width: 16px;
+    height: 16px;
+  }
+
+  .annotation-text {
+    font-size: 0.9rem;
+  }
+
+  .video-title-youtube {
+    font-size: 0.9rem;
+    padding: 0.15rem 0.5rem;
   }
 }
 

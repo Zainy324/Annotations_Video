@@ -24,12 +24,12 @@ const AnnotationEditMenu = ({
       transform: 'translateX(-50%, -100%)',
       zIndex: 20,
       background: 'rgba(30, 30, 30, 0.97)',
-      padding: '4px 8px',
+      padding: window.innerWidth <= 768 ? '8px 12px' : '4px 8px',
       borderRadius: 4,
       display: 'flex',
-      gap: 8,
+      gap: window.innerWidth <= 768 ? '12px' : '8px',
       alignItems: 'center',
-      minWidth: 80,
+      minWidth: window.innerWidth <= 768 ? '200px' : '80px',
       maxWidth: '90vw',
       boxSizing: 'border-box',
       pointerEvents: 'auto'
@@ -148,7 +148,9 @@ const AnnotationEditMenu = ({
     {/* Color Picker */}
     <div>
       <div className="text-xs mb-1">Color:</div>
-      <div className="color-row">
+      <div className="color-row" style={{
+  gap: window.innerWidth <= 768 ? '15px' : '10px'
+}}>
         {colorOptions.map(color => (
           <button
             key={color}
