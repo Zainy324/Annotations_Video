@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, RotateCcw, RotateCw, Maximize, Circle, Square, Minus, Type } from 'lucide-react';
+import { Play, Pause, RotateCcw, RotateCw, Maximize, Circle, Square, Minus, Type, Pencil } from 'lucide-react';
 import './App.css';
+import AnnotixLogo from "./components/AnnotixLogo";
 import VideoPlayer from './components/VideoPlayer.jsx';
 import ControlsBar from './components/ControlsBar.jsx';
 import AnnotationSidebar from './components/AnnotationSidebar.jsx';
@@ -720,71 +721,74 @@ useEffect(() => {
 
 return (
   // <div className="w-full min-h-screen flex flex-col bg-gray-900 text-white">
-<div className={`w-screen min-h-screen flex flex-col text-white ${showAnnotationsPanel ? 'split-bg' : 'landing-bg'}`}>    {/* HEADER */}
-    <header className="app-header">
+<div className={`w-full min-h-screen flex flex-col text-white ${showAnnotationsPanel ? 'split-bg' : 'landing-bg'}`}>    {/* HEADER */}
+    {/* <header className="app-header">
       <h1>Video Annotation Tool</h1>
-    </header>
+    </header> */}
+
+    <header className="app-header" style={{ display: "flex", alignItems: "center", gap: 16 }}>
+  <AnnotixLogo />
+  {/* Optionally, remove the old <h1> */}
+  {/* <h1>Video Annotation Tool</h1> */}
+</header>
     
     <main className="flex-1 flex flex-col">
       {/* Video Container - Always rendered with different layout classes */}
       <div className={showAnnotationsPanel ? "split-screen-container" : "flex flex-col items-center justify-center"}>
         {/* Video Section */}
         <div className={showAnnotationsPanel ? "video-section" : ""}>
-          <div
-            ref={containerRef}
-            className="relative bg-black rounded-lg overflow-hidden video-container"
-            style={{ 
-              aspectRatio: '16/9', 
-              width: showAnnotationsPanel ? '100%' : 720, 
-              maxWidth: showAnnotationsPanel ? 720 : '70vw' 
-            }}
-          >
-            <VideoPlayer
-              videoRef={videoRef}
-              canvasRef={canvasRef}
-              containerRef={containerRef}
-              canvasSize={canvasSize}
-              handleTimeUpdate={handleTimeUpdate}
-              handleLoadedMetadata={handleLoadedMetadata}
-              handleCanvasMouseDown={handleCanvasMouseDown}
-              handleCanvasMouseMove={handleCanvasMouseMove}
-              handleCanvasMouseUp={handleCanvasMouseUp}
-              isPlaying={isPlaying}
-              setIsPlaying={setIsPlaying}
-              selectedTool={selectedTool}
-              videoUrl={videoUrl}
+          <div className="video-player-stack">
+            <div
+              ref={containerRef}
+              className="relative bg-black rounded-lg overflow-hidden video-container"
+              style={{
+                aspectRatio: '16/9',
+                width: showAnnotationsPanel ? '100%' : 720,
+                maxWidth: showAnnotationsPanel ? 720 : '70vw'
+              }}
+            >
+              <VideoPlayer
+                videoRef={videoRef}
+                canvasRef={canvasRef}
+                containerRef={containerRef}
+                canvasSize={canvasSize}
+                handleTimeUpdate={handleTimeUpdate}
+                handleLoadedMetadata={handleLoadedMetadata}
+                handleCanvasMouseDown={handleCanvasMouseDown}
+                handleCanvasMouseMove={handleCanvasMouseMove}
+                handleCanvasMouseUp={handleCanvasMouseUp}
+                isPlaying={isPlaying}
+                setIsPlaying={setIsPlaying}
+                selectedTool={selectedTool}
+                videoUrl={videoUrl}
 
-            />
-            {/* Video Title */}
-  <div className="video-title-youtube">
-    {videoName}
-  </div>
+              />
+              <div className="video-title-youtube">{videoName}</div>
+              <ControlsBar
+                isPlaying={isPlaying}
+                handlePlayPause={handlePlayPause}
+                handleFrameNavigation={handleFrameNavigation}
+                currentTime={currentTime}
+                duration={duration}
+                formatTime={formatTime}
+                handleSeek={handleSeek}
+                handleSeekMouseDown={handleSeekMouseDown}
+                handleSeekMouseUp={handleSeekMouseUp}
+                handleSeekHover={handleSeekHover}
+                setIsSeeking={setIsSeeking}
+                setSeekHoverTime={setSeekHoverTime}
+                seekHoverTime={seekHoverTime}
+                getAnnotationSegments={getAnnotationSegments}
+                playbackRate={playbackRate}
+                handleSpeedChange={handleSpeedChange}
+                handleFullscreen={handleFullscreen}
+                showAnnotationsPanel={showAnnotationsPanel}
+                setShowAnnotationsPanel={setShowAnnotationsPanel}
+                containerRef={containerRef}
 
-            
-            {/* ControlsBar - Always rendered here */}
-            <ControlsBar
-              isPlaying={isPlaying}
-              handlePlayPause={handlePlayPause}
-              handleFrameNavigation={handleFrameNavigation}
-              currentTime={currentTime}
-              duration={duration}
-              formatTime={formatTime}
-              handleSeek={handleSeek}
-              handleSeekMouseDown={handleSeekMouseDown}
-              handleSeekMouseUp={handleSeekMouseUp}
-              handleSeekHover={handleSeekHover}
-              setIsSeeking={setIsSeeking}
-              setSeekHoverTime={setSeekHoverTime}
-              seekHoverTime={seekHoverTime}
-              getAnnotationSegments={getAnnotationSegments}
-              playbackRate={playbackRate}
-              handleSpeedChange={handleSpeedChange}
-              handleFullscreen={handleFullscreen}
-              showAnnotationsPanel={showAnnotationsPanel}
-              setShowAnnotationsPanel={setShowAnnotationsPanel}
-              containerRef={containerRef}
-
-            />
+              />
+            </div>
+            <div className="video-title-below">{videoName}</div>
           </div>
         </div>
         
@@ -792,54 +796,60 @@ return (
         {showAnnotationsPanel && (
           <div className="annotation-sidebar sidebar-container-with-tools">
             {/* Undo/Redo */}
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-4 undo-redo-row">
               <button
                 onClick={handleUndo}
                 disabled={history.length <= 1}
-                className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
+                className="icon-button px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
+                title="Undo"
               >
-                Undo
+                <RotateCcw className="icon-responsive" />
               </button>
               <button
                 onClick={handleRedo}
                 disabled={redoStack.length === 0}
-                className="px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
+                className="icon-button px-3 py-1 bg-gray-700 text-white disabled:opacity-50 rounded"
+                title="Redo"
               >
-                Redo
+                <RotateCw className="icon-responsive" />
               </button>
             </div>
             
             {/* Shape tools */}
             <div className="grid grid-cols-2 gap-2 mb-4">
-              <button 
-                onClick={() => setSelectedTool('rectangle')} 
-                className={`p-2 rounded ${selectedTool === 'rectangle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+              <button
+                onClick={() => setSelectedTool('rectangle')}
+                className={`icon-button p-2 rounded ${selectedTool === 'rectangle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+                title="Rectangle"
               >
-                Rectangle
+                <Square className="icon-responsive" />
               </button>
-              <button 
-                onClick={() => setSelectedTool('line')} 
-                className={`p-2 rounded ${selectedTool === 'line' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+              <button
+                onClick={() => setSelectedTool('line')}
+                className={`icon-button p-2 rounded ${selectedTool === 'line' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+                title="Line"
               >
-                Line
+                <Minus className="icon-responsive" />
               </button>
-              <button 
-                onClick={() => setSelectedTool('text')} 
-                className={`p-2 rounded ${selectedTool === 'text' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+              <button
+                onClick={() => setSelectedTool('text')}
+                className={`icon-button p-2 rounded ${selectedTool === 'text' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+                title="Text"
               >
-                Text
+                <Type className="icon-responsive" />
               </button>
-              <button 
-                onClick={() => setSelectedTool('circle')} 
-                className={`p-2 rounded ${selectedTool === 'circle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+              <button
+                onClick={() => setSelectedTool('circle')}
+                className={`icon-button p-2 rounded ${selectedTool === 'circle' ? 'bg-blue-600' : 'bg-gray-700'} text-white hover:bg-opacity-80 transition-colors`}
+                title="Circle"
               >
-                Circle
+                <Circle className="icon-responsive" />
               </button>
             </div>
             
             {/* Annotation list */}
             <div className="flex-1 overflow-y-auto">
-              <h4 className="font-medium mb-2 text-gray-200">Annotations ({annotations.length})</h4>
+              <h4 className="annotation-header-text">Annotations ({annotations.length})</h4>
               {/* <div className="space-y-2"> */}
               <div
 className="space-y-2"
@@ -894,6 +904,9 @@ className="space-y-2"
         </div>
         )}
       </div>
+{/* <div className="video-title-below">
+  {videoName}
+</div> */}
     {selectedAnnotationId && (() => {
   const ann = annotations.find(a => a.id === selectedAnnotationId);
   if (!ann) return null;
@@ -957,10 +970,32 @@ className="space-y-2"
 })()}
 </main>
 
-    {/* FOOTER */}
+    {/* FOOTER
     <footer className="app-footer mt-4">
       © {new Date().getFullYear()} Annotateway. All rights reserved.
-    </footer>
+    </footer> */}
+    <footer className="app-footer mt-4">
+  <div className="footer-content">
+    <div>© {new Date().getFullYear()} Annotix. All rights reserved.</div>
+    <div className="footer-links">
+      <a 
+        href="https://github.com/Zainy324"
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="footer-link"
+      >
+        GitHub: github.com/Zainy324
+      </a>
+      <span className="footer-separator">|</span>
+      <a 
+        href="mailto:zainabraza2004@gmail.com"
+        className="footer-link"
+      >
+        zainabraza2004@gmail.com
+      </a>
+    </div>
+  </div>
+</footer>
   </div>
 );
 };

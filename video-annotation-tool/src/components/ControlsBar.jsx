@@ -169,6 +169,7 @@ const ControlsBar = (props) => {
           className="p-1.5 bg-gray-600 hover:bg-gray-700 rounded flex-shrink-0 ml-2"
           onClick={handleFullscreen}
           title="Fullscreen"
+          style={{marginLeft: 'auto'}}  
         >
           <Maximize className="icon-responsive" />
         </button>

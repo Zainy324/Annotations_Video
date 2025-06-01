@@ -21,7 +21,7 @@ const AnnotationEditMenu = ({
       position: 'absolute',
       left: `${menuX}px`,
       top: `${menuY}px`,
-      transform: 'translateX(-50%)',
+      transform: 'translateX(-50%, -100%)',
       zIndex: 20,
       background: 'rgba(30, 30, 30, 0.97)',
       padding: '4px 8px',
