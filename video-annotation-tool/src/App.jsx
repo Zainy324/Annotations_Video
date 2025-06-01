@@ -719,13 +719,13 @@ useEffect(() => {
   }, [annotations]);
 
 return (
-  <div className="w-full min-h-screen flex flex-col bg-gray-900 text-white">
-    {/* HEADER */}
+  // <div className="w-full min-h-screen flex flex-col bg-gray-900 text-white">
+<div className={`w-screen min-h-screen flex flex-col text-white ${showAnnotationsPanel ? 'split-bg' : 'landing-bg'}`}>    {/* HEADER */}
     <header className="app-header">
       <h1>Video Annotation Tool</h1>
     </header>
     
-    <main className="flex-1 p-4 flex flex-col">
+    <main className="flex-1 flex flex-col">
       {/* Video Container - Always rendered with different layout classes */}
       <div className={showAnnotationsPanel ? "split-screen-container" : "flex flex-col items-center justify-center"}>
         {/* Video Section */}
@@ -790,7 +790,7 @@ return (
         
         {/* Annotation Sidebar - Only rendered when showAnnotationsPanel is true */}
         {showAnnotationsPanel && (
-          <div className="annotation-sidebar">
+          <div className="annotation-sidebar sidebar-container-with-tools">
             {/* Undo/Redo */}
             <div className="flex gap-2 mb-4">
               <button
