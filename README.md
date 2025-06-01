@@ -1,12 +1,12 @@
-# Annotations_Video
-<<<<<<< HEAD
-=======
-# Annotations_Video
->>>>>>> d41e1b078247b2c88bafb659db4ca8033b8562c6
 # Annotix - Video Annotation Tool
 
 A powerful web-based video annotation tool that allows users to create, edit, and manage annotations on videos in real-time. Built with React for the frontend and Node.js/Express/MongoDB for the backend.
 
+
+### DEPLOY
+Used Vercel for Frontend Deployment and used Railway for Backend
+Find it deployed here : - 
+## https://annotations-video.vercel.app/
 ## Features
 
 - **Real-time Video Annotation:** Draw shapes, add text, and create annotations while watching videos
@@ -270,13 +270,10 @@ The frontend will run on `http://localhost:5173`
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<<<<<<< HEAD
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-=======
->>>>>>> d41e1b078247b2c88bafb659db4ca8033b8562c6
 ## Acknowledgments
 
 - Built using React and Node.js
@@ -287,8 +284,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Zainab Raza
 - GitHub: [@Zainy324](https://github.com/Zainy324)
-<<<<<<< HEAD
 - Email: zainabraza2004@gmail.com
-=======
 - Email: zainabraza2004@gmail.com
->>>>>>> d41e1b078247b2c88bafb659db4ca8033b8562c6
