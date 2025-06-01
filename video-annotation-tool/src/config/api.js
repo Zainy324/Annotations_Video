@@ -1,1 +1,5 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  'https://annotationsvideo-production.up.railway.app/api';
+
+export const isProduction = import.meta.env.PROD;
