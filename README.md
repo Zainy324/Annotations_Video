@@ -6,7 +6,7 @@ A powerful web-based video annotation tool that allows users to create, edit, an
 ### DEPLOY
 Used Vercel for Frontend Deployment and used Railway for Backend
 Find it deployed here : - 
-## https://annotations-video.vercel.app/
+https://annotations-video.vercel.app/
 ## Features
 
 - **Real-time Video Annotation:** Draw shapes, add text, and create annotations while watching videos
